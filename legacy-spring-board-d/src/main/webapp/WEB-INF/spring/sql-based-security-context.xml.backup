@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/security 
+		http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/beans 
+		https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<beans:bean id="noOpPasswdEncoder"
+				class="com.springboard.security.SpringBoardNoOpPasswordEncoder" />
+
+	<http>
+		
+		<intercept-url pattern="/" access="permitAll()" />
+		<intercept-url pattern="/home" access="permitAll()" />
+		<intercept-url pattern="/resources/**" access="permitAll()" />
+		<intercept-url pattern="/account/**" access="permitAll()" />
+		
+		<intercept-url pattern="/board/write.action" 
+					   access="hasRole('ROLE_ADMIN')" />
+		
+		<intercept-url pattern="/**" access="isAuthenticated()" />
+		
+		<access-denied-handler error-page="/access-denied" />
+		
+		<form-login login-page="/resources/login.html" 
+					username-parameter="email"
+					password-parameter="passwd"
+					default-target-url="/home" />
+				
+		<logout logout-url="/logout"
+				logout-success-url="/home"
+				invalidate-session="true"
+				delete-cookies="JSESSIONID" />
+		
+		<csrf disabled="true" />
+		
+	</http>
+	
+	<authentication-manager>
+	
+		<authentication-provider>
+
+			<jdbc-user-service data-source-ref="apacheDataSource"
+							   users-by-username-query="SELECT email, passwd, enabled FROM tbl_member where email = ?"
+							   authorities-by-username-query="SELECT email, role_name FROM tbl_member_role where email = ?" />
+			
+			<password-encoder ref="noOpPasswdEncoder" />
+			
+		</authentication-provider>
+	
+	</authentication-manager>
+	
+</beans:beans>
+
+
+

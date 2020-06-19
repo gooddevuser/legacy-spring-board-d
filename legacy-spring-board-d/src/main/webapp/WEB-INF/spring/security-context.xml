@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/security 
+		http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/beans 
+		https://www.springframework.org/schema/beans/spring-beans.xsd">	
+
+	<http>
+		
+		<intercept-url pattern="/" access="permitAll()" />
+		<intercept-url pattern="/home" access="permitAll()" />
+		<intercept-url pattern="/resources/**" access="permitAll()" />
+		<intercept-url pattern="/account/**" access="permitAll()" />
+		
+		<intercept-url pattern="/board/write.action" 
+					   access="hasRole('ROLE_ADMIN')" />
+		
+		<intercept-url pattern="/**" access="isAuthenticated()" />
+		
+		<access-denied-handler error-page="/access-denied" />
+		
+		<form-login login-page="/resources/login.html" 
+					username-parameter="email"
+					password-parameter="passwd"
+					default-target-url="/home" />
+				
+		<logout logout-url="/logout"
+				logout-success-url="/home"
+				invalidate-session="true"
+				delete-cookies="JSESSIONID" />
+		
+		<csrf disabled="true" />
+		
+	</http>
+	
+	<beans:bean id="noOpPasswdEncoder"
+				class="com.springboard.security.SpringBoardNoOpPasswordEncoder" />
+				
+	<beans:bean id="bcryptPasswdEncoder"
+				class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
+				
+	<beans:bean id="springBoardPasswdEncoder"
+				class="com.springboard.security.SpringBoardPasswordEncoder" />
+	
+	<beans:bean id="springBoardUserService"
+				class="com.springboard.security.SpringBoardUserDetailsService">
+		<beans:property name="memberMapper" ref="memberMapper" />
+	</beans:bean>
+				
+	<authentication-manager>
+	
+		<authentication-provider user-service-ref="springBoardUserService">
+			
+			<!-- <password-encoder ref="noOpPasswdEncoder" /> -->
+			<!-- <password-encoder ref="bcryptPasswdEncoder" /> -->
+			<password-encoder ref="springBoardPasswdEncoder" />
+			
+		</authentication-provider>
+	
+	</authentication-manager>
+	
+</beans:beans>
+
+
+

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+		   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- package-name : com.springboard.mapper, class-name : BoardMapper -->
+<mapper namespace="com.springboard.mapper.MemberMapper">
+
+	<insert id="insertMember" parameterType="MemberVO">
+		INSERT INTO tbl_member
+		VALUES (#{ email }, #{ passwd }, '1', SYSDATE)
+	</insert>
+	
+	<insert id="insertMemberRole" parameterType="MemberRoleVO">
+		INSERT INTO tbl_member_role
+		VALUES (#{ email }, #{ roleName })
+	</insert>
+	
+	<select id="selectMemberByEmailAndPasswd" 
+			parameterType="MemberVO" resultType="MemberVO">
+		SELECT email, enabled, regdate
+		FROM tbl_member
+		WHERE email = #{ email } AND passwd = #{ passwd }
+	</select>
+	
+	<resultMap type="MemberVO" id="memberMap">
+		<id column="email" property="email" />
+		<result column="passwd" property="passwd" />
+		<result column="enabled" property="enabled" />
+		<result column="regdate" property="regdate" />
+		<collection property="roles" column="email" resultMap="roleMap" />
+	</resultMap>
+	<resultMap type="MemberRoleVO" id="roleMap">
+		<result column="email" property="email" />
+		<result column="role_name" property="roleName" />
+	</resultMap>
+	
+	<select id="selectMemberByEmail" 
+			parameterType="String" resultMap="memberMap">
+		SELECT m.email, m.passwd, m.enabled, m.regdate, r.role_name
+		FROM tbl_member m
+		LEFT OUTER JOIN tbl_member_role r
+		ON m.email = r.email
+		WHERE m.email = #{ email }
+	</select>	
+
+</mapper>
+
+
+
+
+

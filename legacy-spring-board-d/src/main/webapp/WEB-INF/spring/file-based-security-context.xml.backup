@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/security 
+		http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/beans 
+		https://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<beans:bean id="accessDeniedHandler"
+				class="com.springboard.security.SpringBoardAccessDeniedHandler" />
+	<beans:bean id="authSuccessHandler"
+				class="com.springboard.security.SpringBoardSuccessHandler" />
+	
+	<http>
+		
+		<intercept-url pattern="/" access="permitAll()" />
+		<intercept-url pattern="/home" access="permitAll()" />
+		<intercept-url pattern="/resources/**" access="permitAll()" />
+		<intercept-url pattern="/account/**" access="permitAll()" />
+		
+		<intercept-url pattern="/board/write.action" 
+					   access="hasRole('ROLE_ADMIN')" />
+		
+		<intercept-url pattern="/**" access="isAuthenticated()" />
+		
+		<!-- <access-denied-handler error-page="/access-denied" /> -->
+		<access-denied-handler ref="accessDeniedHandler" />
+		
+		<!-- <form-login login-page="/resources/login.html" 
+					username-parameter="email"
+					password-parameter="passwd"
+					default-target-url="/home" /> -->
+		<form-login login-page="/resources/login.html" 
+					username-parameter="email"
+					password-parameter="passwd"
+					authentication-success-handler-ref="authSuccessHandler" />
+					
+		<logout logout-url="/logout"
+				logout-success-url="/home"
+				invalidate-session="true"
+				delete-cookies="JSESSIONID" />
+		
+		<csrf disabled="true" />
+		
+	</http>
+	
+	<authentication-manager>
+	
+		<authentication-provider>
+			<user-service>
+				<user name="iamuserone@example.com" 
+					  password="{noop}9922" 
+					  authorities="ROLE_MEMBER" />
+				<user name="iamusertwo@example.com" 
+					  password="{noop}9922" 
+					  authorities="ROLE_MEMBER" />
+				<user name="iamadminone@example.com" 
+					  password="{noop}9922" 
+					  authorities="ROLE_ADMIN" />
+			</user-service>			
+		</authentication-provider>
+	
+	</authentication-manager>
+	
+</beans:beans>
+
+
+
